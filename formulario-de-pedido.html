@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido - Mi Tienda</title>
+    <style>
+        /* --- ESTILOS MODERNOS Y RESPONSIVOS --- */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --dark-color: #343a40;
+            --light-color: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 20px;
+            color: var(--dark-color);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: var(--light-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1, h2 {
+            color: var(--dark-color);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            box-sizing: border-box; /* Importante para que el padding no afecte el ancho */
+            font-size: 16px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none; /* Oculto por defecto */
+        }
+        
+        .product-item {
+            background-color: var(--secondary-color);
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .product-item select, .product-item input {
+            flex-grow: 1;
+        }
+        
+        .product-item .product-info {
+            flex-grow: 1;
+            font-weight: 500;
+        }
+
+        .product-item .product-price {
+            font-weight: bold;
+            color: var(--success-color);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .product-item .quantity-input {
+            width: 60px;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: var(--light-color);
+            padding: 8px 12px;
+        }
+        
+        .btn-add-product {
+            background-color: var(--secondary-color);
+            color: var(--dark-color);
+            border: 2px dashed var(--primary-color);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #total-price-container {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--dark-color);
+            border-top: 2px solid #dee2e6;
+            padding-top: 15px;
+        }
+
+        #total-price-container span {
+            color: var(--success-color);
+        }
+
+        #status-message {
+            text-align: center;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            display: none; /* Oculto por defecto */
+        }
+
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🛒 Realizar Pedido</h1>
+        <p style="text-align:center; color:#6c757d;">Rellena el formulario para confirmar tu pedido. Te contactaremos pronto.</p>
+
+        <form id="pedido-form">
+            <!-- --- DATOS DEL CLIENTE --- -->
+            <h2>Datos del Cliente</h2>
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+                <span class="error-message">Por favor, introduce tu nombre.</span>
+            </div>
+            <div class="form-group">
+                <label for="apellidos">Apellidos:</label>
+                <input type="text" id="apellidos" name="apellidos" required>
+                <span class="error-message">Por favor, introduce tus apellidos.</span>
+            </div>
+            <div class="form-group">
+                <label for="ci">Carnet de Identidad (CI):</label>
+                <input type="text" id="ci" name="ci" maxlength="11" pattern="\d{11}" required>
+                <span class="error-message">El CI debe tener exactamente 11 dígitos.</span>
+            </div>
+            <div class="form-group">
+                <label for="direccion">Dirección:</label>
+                <input type="text" id="direccion" name="direccion" required>
+                <span class="error-message">Por favor, introduce tu dirección.</span>
+            </div>
+            <div class="form-group">
+                <label for="correo">Correo Electrónico:</label>
+                <input type="email" id="correo" name="correo" required>
+                <span class="error-message">Introduce un correo válido (ej: usuario@dominio.com).</span>
+            </div>
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" maxlength="8" pattern="[5-6][0-9]{7}" required>
+                <span class="error-message">El teléfono debe tener 8 dígitos y empezar con 5, 6 o 7 (ej: 51234567).</span>
+            </div>
+
+            <!-- --- SELECCIÓN DE PRODUCTOS --- -->
+            <h2>Productos</h2>
+            <div id="productos-container">
+                <!-- Los productos seleccionados se añadirán aquí dinámicamente -->
+            </div>
+            
+            <button type="button" class="btn btn-add-product" id="add-product-btn">+ Añadir otro producto</button>
+            
+            <div id="total-price-container">
+                Total del Pedido: <span id="total-price">0.00 CUP</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Enviar Pedido</button>
+        </form>
+
+        <div id="status-message"></div>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        // ¡IMPORTANTE! Pega aquí tu Token y tu Chat ID
+        const TELEGRAM_BOT_TOKEN = '8523854265:AAHASfPfbh0GGmqHGyvsN-7zQsdv4jW7BkM';
+        const TELEGRAM_CHAT_ID = '@LGQuev98';
+
+        // --- CATÁLOGO DE PRODUCTOS ---
+        // Aquí defines tus productos. Puedes añadir o quitar los que necesites.
+        // Formato: 'Nombre del Producto': Precio
+        const productosCatalogo = {
+            'Camiseta Básica': 250,
+            'Pantalón Vaquero': 750,
+            'Zapatillas Deportivas': 1200,
+            'Sudadera con Capucha': 550,
+            'Gorra de Béisbol': 150,
+            'Mochila Escolar': 450,
+            'Chaqueta Impermeable': 950,
+            'Vestido de Verano': 400
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('pedido-form');
+            const productosContainer = document.getElementById('productos-container');
+            const addProductBtn = document.getElementById('add-product-btn');
+            const totalPriceElement = document.getElementById('total-price');
+            const statusMessage = document.getElementById('status-message');
+
+            let productCount = 0;
+
+            // --- FUNCIONES ---
+
+            function createProductSelector() {
+                productCount++;
+                const productItem = document.createElement('div');
+                productItem.className = 'product-item';
+                productItem.dataset.productId = productCount;
+
+                const options = ['<option value="">-- Selecciona un producto --</option>'];
+                for (const [name, price] of Object.entries(productosCatalogo)) {
+                    options.push(`<option value="${name}" data-price="${price}">${name}</option>`);
+                }
+
+                productItem.innerHTML = `
+                    <select class="product-select" required>
+                        ${options.join('')}
+                    </select>
+                    <input type="number" class="quantity-input" value="1" min="1" required>
+                    <div class="product-price">0.00 CUP</div>
+                    <button type="button" class="btn btn-danger remove-product-btn">Eliminar</button>
+                `;
+                
+                productosContainer.appendChild(productItem);
+                attachProductListeners(productItem);
+            }
+
+            function attachProductListeners(productItem) {
+                const select = productItem.querySelector('.product-select');
+                const quantityInput = productItem.querySelector('.quantity-input');
+                const priceDisplay = productItem.querySelector('.product-price');
+                const removeBtn = productItem.querySelector('.remove-product-btn');
+
+                function updatePrice() {
+                    const selectedOption = select.options[select.selectedIndex];
+                    const price = parseFloat(selectedOption.dataset.price) || 0;
+                    const quantity = parseInt(quantityInput.value) || 1;
+                    const subtotal = price * quantity;
+                    priceDisplay.textContent = `${subtotal.toFixed(2)} CUP`;
+                    updateTotalPrice();
+                }
+
+                select.addEventListener('change', () => {
+                    if (select.value) {
+                        // Si se selecciona un producto, crear un nuevo selector
+                        createProductSelector();
+                    }
+                    updatePrice();
+                });
+
+                quantityInput.addEventListener('input', updatePrice);
+                removeBtn.addEventListener('click', () => {
+                    productItem.remove();
+                    updateTotalPrice();
+                });
+            }
+
+            function updateTotalPrice() {
+                let total = 0;
+                document.querySelectorAll('.product-item').forEach(item => {
+                    const priceText = item.querySelector('.product-price').textContent;
+                    total += parseFloat(priceText) || 0;
+                });
+                totalPriceElement.textContent = `${total.toFixed(2)} CUP`;
+            }
+
+            function showStatus(message, isSuccess) {
+                statusMessage.textContent = message;
+                statusMessage.className = isSuccess ? 'status-success' : 'status-error';
+                statusMessage.style.display = 'block';
+                statusMessage.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 7000);
+            }
+
+            // --- EVENTOS ---
+
+            addProductBtn.addEventListener('click', createProductSelector);
+            
+            // Crear el primer selector al cargar la página
+            createProductSelector();
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if (TELEGRAM_BOT_TOKEN === 'AQUÍ_VA_EL_TOKEN_DE_TU_BOT' || TELEGRAM_CHAT_ID === 'AQUÍ_VA_TU_CHAT_ID') {
+                    showStatus('Error: El administrador debe configurar el Token y el Chat ID en el código del formulario.', false);
+                    return;
+                }
+
+                const formData = new FormData(form);
+                const cliente = {
+                    nombre: formData.get('nombre'),
+                    apellidos: formData.get('apellidos'),
+                    ci: formData.get('ci'),
+                    direccion: formData.get('direccion'),
+                    correo: formData.get('correo'),
+                    telefono: formData.get('telefono')
+                };
+
+                let productosList = [];
+                let isValidOrder = false;
+                document.querySelectorAll('.product-item').forEach(item => {
+                    const select = item.querySelector('.product-select');
+                    if (select.value) {
+                        isValidOrder = true; // Hay al menos un producto seleccionado
+                        const quantity = item.querySelector('.quantity-input').value;
+                        const priceText = item.querySelector('.product-price').textContent;
+                        productosList.push(`- ${select.value} (x${quantity}) -> ${priceText}`);
+                    }
+                });
+
+                if (!isValidOrder) {
+                    showStatus('Por favor, añade al menos un producto a tu pedido.', false);
+                    return;
+                }
+
+                const message = `
+🛒 <b>NUEVO PEDIDO RECIBIDO</b> 🛒
+
+👤 <b>Datos del Cliente:</b>
+<b>Nombre:</b> ${cliente.nombre} ${cliente.apellidos}
+<b>CI:</b> ${cliente.ci}
+<b>Dirección:</b> ${cliente.direccion}
+<b>Correo:</b> ${cliente.correo}
+<b>Teléfono:</b> ${cliente.telefono}
+
+📦 <b>Detalle del Pedido:</b>
+ ${productosList.join('\n')}
+
+💰 <b>TOTAL A PAGAR:</b> ${totalPriceElement.textContent}
+                `;
+
+                const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+                try {
+                    const response = await fetch(telegramUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: TELEGRAM_CHAT_ID,
+                            text: message,
+                            parse_mode: 'HTML'
+                        }),
+                    });
+
+                    if (response.ok) {
+                        showStatus('¡Pedido enviado con éxito! Nos pondremos en contacto contigo pronto.', true);
+                        form.reset();
+                        productosContainer.innerHTML = '';
+                        productCount = 0;
+                        createProductSelector();
+                        updateTotalPrice();
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Error de Telegram:', errorData);
+                        showStatus('Hubo un error al enviar el pedido. Por favor, intenta más tarde.', false);
+                    }
+                } catch (error) {
+                    console.error('Error de red:', error);
+                    showStatus('Error de conexión. No se pudo enviar el pedido.', false);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
